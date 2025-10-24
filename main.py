@@ -11,7 +11,7 @@ class MittagLefflerPlotter:
     Function 2: f2(t) = (\omega*t)^\alpha E_{self.m*alpha, 1+\alpha}(-(\omega*t)^{self.m*alpha})
     """
 
-    def __init__(self, omega=1.0, t_end=10.0, num_points=500, K=70):
+    def __init__(self, omega=1.0, t_end=10.0, num_points=500, K=70) -> None:
         """
         Args:
             omega (float): Frequency parameters (omega)
@@ -24,7 +24,7 @@ class MittagLefflerPlotter:
         self.t = np.linspace(0, t_end, num_points)
         self.K = K
 
-    def _approx_f1(self, t, alpha):
+    def _approx_f1(self, t, alpha) -> np.ndarray[float]:
         alpha_ml = float(self.m) * alpha
         z = -(self.omega * t) ** alpha_ml
         result = np.zeros_like(t, dtype=float)
@@ -39,17 +39,17 @@ class MittagLefflerPlotter:
 
         return result
 
-    def _approx_f2(self, t, alpha):
-        # sum_{k=0}^{\infty} [ (-1)^k * (omega*t)^{\alpha*(2k+1)} / Gamma(2*alpha*k + 1+alpha) ]
+    def _approx_f2(self, t, alpha) -> np.ndarray[float]:
+        # sum_{k=0}^{\infty} [ (-1)^k * (omega*t)^{\alpha*(self.m*k+1)} / Gamma(self.m*alpha*k + 1+alpha) ]
 
         result = np.zeros_like(t, dtype=float)
 
         for k in range(self.K):
-            # Numerator: (-1)^k * (omega*t)^{\alpha*(2k+1)}
+            # Numerator: (-1)^k * (omega*t)^{\alpha*(self.m*k+1)}
             exponent = alpha * (float(self.m) * k + 1)
             numerator = ((-1.0) ** k) * np.power(self.omega * t, exponent)
 
-            # Denominator: Gamma(2*alpha*k + 1+alpha)
+            # Denominator: Gamma(self.m*alpha*k + 1+alpha)
             gamma_arg = float(self.m) * alpha * k + 1 + alpha
             denominator = gamma(gamma_arg)
 
@@ -58,7 +58,7 @@ class MittagLefflerPlotter:
 
         return result
 
-    def calculate_f1(self, alpha):
+    def calculate_f1(self, alpha) -> tuple[np.ndarray[float], str]:
         if alpha == 0.5:
             # alpha=0.5 -> e^{-(\omega t)}
             y = np.exp(-(self.omega * self.t))
@@ -72,7 +72,7 @@ class MittagLefflerPlotter:
             label = fr'$E_{{{self.m}\alpha, 1}}(-z)$: $\alpha={alpha:.2f}$'
         return y, label
 
-    def calculate_f2(self, alpha):
+    def calculate_f2(self, alpha) -> tuple[np.ndarray[float], str]:
         if alpha == 1.0:
             # alpha=1.0 -> sin(\omega t)
             y = np.sin(self.omega * self.t)
@@ -82,7 +82,7 @@ class MittagLefflerPlotter:
             label = fr'$(\omega t)^\alpha E_{{{self.m}\alpha, 1+\alpha}}(-z)$: $\alpha={alpha:.2f}$'
         return y, label
 
-    def plot_function(self, function_name, alphas, filename='plot.png'):
+    def plot_function(self, function_name, alphas, filename='plot.png') -> None:
         """
         Draws a graph using the specified function and alpha value.
 
@@ -121,7 +121,7 @@ class MittagLefflerPlotter:
 
 # --- execution part ---
 if __name__ == '__main__':
-    plotter = MittagLefflerPlotter(t_end=10.0)
+    plotter = MittagLefflerPlotter(t_end=20.0)
     alphas_to_plot = [0.30, 0.64, 1.0]
 
     # 1. Draw the graph of the first function (E_{2*alpha, 1})
