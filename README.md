@@ -8,7 +8,7 @@
 
 ---
 
-## **overview**
+## **Overview**
 - This project implements a **Mittag-Leffler Function graph** using the `matplotlib` library in Python. 
 - Enter a number greater than or equal to 1 in m to generate a graph.
 - Showing graphs for alphas of 0.30, 0.64, and 1.0.
@@ -63,7 +63,7 @@ input m (e.g., 2.0, 3.0, ...): 2.0
 - Implement more robust error checking on user input (values ​​of $m$).
 
 ## **Licence**
-- This project is licensed under the MIT License. See the `LICENSE` file for details.
+- This project is licensed under the MIT License. See the `LICENCE` file for details.
 
 
 ---
