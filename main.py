@@ -111,7 +111,7 @@ class MittagLefflerPlotter:
         plt.xlabel(r'$t$', fontsize=14)
         plt.ylabel(r'$f(t)$', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.6)
-        plt.axhline(0, color='black', linewidth=0.5)
+        plt.axhline(color='black', linewidth=0.5)
         plt.legend(fontsize=12, loc='lower right')
         plt.ylim(-1.1, 1.1)
         plt.savefig(filename)
@@ -121,7 +121,7 @@ class MittagLefflerPlotter:
 
 # --- execution part ---
 if __name__ == '__main__':
-    plotter = MittagLefflerPlotter(t_end=20.0)
+    plotter = MittagLefflerPlotter(t_end=50.0)
     alphas_to_plot = [0.30, 0.64, 1.0]
 
     # 1. Draw the graph of the first function (E_{2*alpha, 1})
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     plotter.plot_function(
         function_name='f1',
         alphas=alphas_to_plot,
-        filename='MittagLeffler_F1.png'
+        filename=f'MittagLeffler_F1_m={plotter.m}.png'
     )
 
     # 2. Plot the graph of the second function ((\omega t)^\alpha E_{2*alpha, 1+alpha})
@@ -137,5 +137,5 @@ if __name__ == '__main__':
     plotter.plot_function(
         function_name='f2',
         alphas=alphas_to_plot,
-        filename='MittagLeffler_F2.png'
+        filename=f'MittagLeffler_F2_m={plotter.m}.png'
     )
