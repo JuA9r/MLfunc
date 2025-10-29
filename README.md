@@ -1,4 +1,4 @@
-# **Mittag-Lefller Function graph**
+# **Mittag-Leffler Function graph**
 
 ## **Execution Environment**
 - **Python**: 3.14.0  
