@@ -63,13 +63,16 @@ class MittagLefflerPlotter:
             # alpha=0.5 -> e^{-(\omega t)}
             y = np.exp(-(self.omega * self.t))
             label = fr'$E_{{{self.m}\alpha, 1}}(-z)$: $\alpha=0.5$ ($e^{{-\omega t}}$)'
+
         elif alpha == 1.0:
             # alpha=1.0 -> cos(\omega t)
             y = np.cos(self.omega * self.t)
             label = fr'$E_{{{self.m}\alpha, 1}}(-z)$: $\alpha=1.0$ ($\cos(\omega t)$)'
+
         else:
             y = self._approx_f1(self.t, alpha)
             label = fr'$E_{{{self.m}\alpha, 1}}(-z)$: $\alpha={alpha:.2f}$'
+
         return y, label
 
     def calculate_f2(self, alpha) -> tuple[np.ndarray[float], str]:
@@ -77,9 +80,11 @@ class MittagLefflerPlotter:
             # alpha=1.0 -> sin(\omega t)
             y = np.sin(self.omega * self.t)
             label = fr'$(\omega t)^\alpha E_{{{self.m}\alpha, 1+\alpha}}(-z)$: $\alpha=1.0$ ($\sin(\omega t)$)'
+
         else:
             y = self._approx_f2(self.t, alpha)
             label = fr'$(\omega t)^\alpha E_{{{self.m}\alpha, 1+\alpha}}(-z)$: $\alpha={alpha:.2f}$'
+
         return y, label
 
     def plot_function(self, function_name, alphas, filename='plot.png') -> None:
@@ -95,6 +100,7 @@ class MittagLefflerPlotter:
         if function_name == 'f1':
             calculator = self.calculate_f1
             title = fr'$f_1(t) = E_{{{self.m}\alpha, 1}}(-(\omega t)^{{{self.m}\alpha}})$ with $\omega=1$'
+
         elif function_name == 'f2':
             calculator = self.calculate_f2
             title = fr'$f_2(t) = (\omega t)^\alpha E_{{{self.m}\alpha, 1+\alpha}}(-(\omega t)^{{{self.m}\alpha}})$' \
