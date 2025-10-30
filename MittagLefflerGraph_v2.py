@@ -19,13 +19,13 @@ class MittagLefflerPlotter:
             num_points (int): The number of sampling points at time t.
             K (int): The number of terms in a series expansion.
         """
-        self.m = input("Enter a decimal number for m : ")
+        self.m = 2.0
         self.omega = omega
         self.t = np.linspace(0, t_end, num_points)
         self.K = K
 
     def _approx_f1(self, t, alpha) -> np.ndarray[float]:
-        alpha_ml = float(self.m) * alpha
+        alpha_ml = self.m * alpha
         z = -(self.omega * t) ** alpha_ml
         result = np.zeros_like(t, dtype=float)
 
@@ -46,11 +46,11 @@ class MittagLefflerPlotter:
 
         for k in range(self.K):
             # Numerator: (-1)^k * (omega*t)^{\alpha*(self.m*k+1)}
-            exponent = alpha * (float(self.m) * k + 1)
+            exponent = alpha * (self.m * k + 1)
             numerator = ((-1.0) ** k) * np.power(self.omega * t, exponent)
 
             # Denominator: Gamma(self.m*alpha*k + 1+alpha)
-            gamma_arg = float(self.m) * alpha * k + 1 + alpha
+            gamma_arg = self.m * alpha * k + 1 + alpha
             denominator = gamma(gamma_arg)
 
             term = numerator / denominator
