@@ -49,11 +49,7 @@ pip install numpy matplotlib scipy
 ```bash
 python plot_ml.py
 ```
-4. When prompted, enter a value for $m$ and press Enter:
-```
-input m (e.g., 2.0, 3.0, ...): 2.0
-```
-5. The script will run and save two PNG files (e.g., `MittagLeffler_F1_m=2.0.png` and `MittagLeffler_F2_m=2.0.png`) in the same directory.
+4. The script will run and save two PNG files (e.g., `MittagLeffler_F1_m=2.0.png` and `MittagLeffler_F2_m=2.0.png`) in the same directory.
 
 ## **ToDo**
 ### **Completed**
