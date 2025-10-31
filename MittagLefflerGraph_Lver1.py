@@ -138,17 +138,17 @@ class MittagLefflerPlotter:
         if function_name == 'f1':
             calculator = self.calculate_f1
             title = r'$f_1(t) = E_{3\alpha, 1}(-(\omega t)^{3\alpha})$ with $\omega=1$'
-            y_limit = (-1.1, 1.1)  # f1 は -1 から 1 の範囲
+            y_limit = (-7.6, 7.6)
 
         elif function_name == 'f2':
             calculator = self.calculate_f2
             title = r'$f_2(t) = tE_{3\alpha, 2}(-(\omega t)^{3\alpha})$ with $\omega=1$'
-            y_limit = (-2.0, 2.0)  # f2 は t とともに振幅が増大
+            y_limit = (-7.6, 7.6)
 
         elif function_name == 'f3':
             calculator = self.calculate_f3
             title = r'$f_3(t) = t^2E_{3\alpha, 3}(-(\omega t)^{3\alpha})$ with $\omega=1$'
-            y_limit = (-7.6, 7.6)  # f3 は t^2 とともに振幅が増大
+            y_limit = (-7.6, 7.6)
 
         else:
             raise ValueError(f"Unknown function_name: {function_name}")
@@ -162,9 +162,11 @@ class MittagLefflerPlotter:
         plt.xlabel(r'$t$', fontsize=14)
         plt.ylabel(r'$f(t)$', fontsize=14)
         plt.grid(True, linestyle='--', alpha=0.6)
-        plt.axhline(0, color='black', linewidth=0.5)
-        plt.legend(fontsize=12, loc='best')  # 'best' に変更
-        plt.ylim(y_limit)  # 関数ごとにY軸の範囲を変更
+        plt.axhline(color='black', linewidth=0.5)
+        plt.legend(fontsize=12, loc='best')
+        plt.ylim(y_limit)
+        plt.tight_layout()
+        plt.legend(loc='upper right', fontsize=12)
         plt.savefig(filename)
         plt.close()
 
@@ -175,7 +177,7 @@ class MittagLefflerPlotter:
 
 # --- execution part ---
 if __name__ == '__main__':
-    plotter = MittagLefflerPlotter(m=3.0, t_end=20.0, omega=1.0, K=100)
+    plotter = MittagLefflerPlotter(m=3.0, t_end=20.0, omega=1.00, K=100)
     alphas_to_plot = [0.30, 0.64, 1.0]
 
     # 1. Plot f1 = E_{3*alpha, 1}
