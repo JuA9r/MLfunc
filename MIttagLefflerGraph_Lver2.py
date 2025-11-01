@@ -5,125 +5,77 @@ import time
 
 
 class MittagLefflerPlotter:
-    """
-        A class for drawing graphs of Mittag-Leffler related functions.
-    """
-
     def __init__(self, m, omega=1.0, t_end=10.0, num_points=500, K=100) -> None:
-        """
-        Args:
-            :param m: The 'm' parameter (float)
-            :param omega: Angular frequency
-            :param t_end: End time for plotting
-            :param num_points: Number of points to plot
-            :param K: Number of terms for series approximation
-        """
-
         self.m = float(m)
         self.omega = omega
         self.t = np.linspace(0, t_end, num_points)
         self.K = K
         print(f"Plotter initialized with m={self.m}, ω={self.omega}, K={self.K}")
 
-    def _approx_f1(self, t, alpha) -> np.ndarray:
-        """
-        Calculates f1(t) = E_{m*alpha, 1}(-(\omega*t)^{m*alpha})
-
-        This is calculated as:
-        f1(t) = [ Sum_{k=0 to K-1} (z^k) / Gamma(m*alpha*k + 1) ]
-        where z = -(\omega*t)^{m*alpha}
-        """
-        alpha_ml = self.m * alpha
+    def _approx_series(self, t, alpha_ml, beta_offset_scalar) -> np.ndarray:
         t_safe = np.where(t == 0, 1e-100, t)
         z = -(self.omega * t_safe) ** alpha_ml
 
-        # k=0 の項: z^0 / Gamma(1) = 1
-        series_sum = np.ones_like(t, dtype=float)
+        # k=0 の項: z^0 / Gamma(beta_offset)
+        k0_term = 1.0 / gamma(beta_offset_scalar)
+        series_sum = np.full_like(t, k0_term, dtype=float)
 
-        # k=1 から K-1 の項
         for k in range(1, self.K):
             numerator = (z ** k)
-            gamma_arg = alpha_ml * k + 1
+            gamma_arg = alpha_ml * k + beta_offset_scalar
             denominator = gamma(gamma_arg)
             term = numerator / denominator
             series_sum += term
-
-        # t=0 で 1 になる
-        series_sum[t == 0] = 1.0
 
         return series_sum
 
-    def _approx_f2(self, t, alpha):
-        """
-        Calculates f2(t) = t * E_{m*alpha, 2}(-(\omega*t)^{m*alpha})
-        """
-        alpha_ml = self.m * alpha
-        # ★ 修正: t_safe を使用
-        t_safe = np.where(t == 0, 1e-100, t)
-        z = -(self.omega * t_safe) ** alpha_ml
-
-        # k=0 の項: z^0 / Gamma(2) = 1
-        series_sum = np.ones_like(t, dtype=float)
-
-        # k=1 から K-1 の項
-        for k in range(1, self.K):
-            numerator = (z ** k)
-            gamma_arg = alpha_ml * k + 2
-            denominator = gamma(gamma_arg)
-            term = numerator / denominator
-            series_sum += term
-
-        result = t * series_sum
-        result[t == 0] = 0.0
-        return result
-
-    def _approx_f3(self, t, alpha):
-        """
-        Calculates f3(t) = t^2 * E_{m*alpha, 3}(-(\omega*t)^{m*alpha})
-        """
-        alpha_ml = self.m * alpha
-        t_safe = np.where(t == 0, 1e-100, t)
-        z = -(self.omega * t_safe) ** alpha_ml
-
-        # k=0 の項: z^0 / Gamma(3) = 1/2
-        series_sum = np.full_like(t, 0.5, dtype=float)
-
-        for k in range(1, self.K):
-            numerator = (z ** k)
-            gamma_arg = alpha_ml * k + 3
-            denominator = gamma(gamma_arg)
-            term = numerator / denominator
-            series_sum += term
-
-        result = (t ** 2) * series_sum
-        result[t == 0] = 0.0
-        return result
-
     def calculate_f1(self, alpha):
         """
-        Calculates f1 and prepares the label.
+        Calculates f1(t) = E_{m*a, 1}(-(\omega*t)^{m*a})
         """
-        y = self._approx_f1(self.t, alpha)
-        beta = self.m * alpha
-        label = fr'$E_{{{beta:.2f}, 1}}(-z)$: $\alpha={alpha:.2f}$'
+        alpha_ml = self.m * alpha
+        beta_offset = 1.0
+
+        y = self._approx_series(self.t, alpha_ml, beta_offset)
+
+        # t=0 -> 1 (E_{a,1}(0) = 1)
+        y[self.t == 0] = 1.0
+
+        label = fr'$E_{{{alpha_ml:.2f}, 1}}(-z)$: $\alpha={alpha:.2f}$'
         return y, label
 
     def calculate_f2(self, alpha):
         """
-        Calculates f2 and prepares the label.
+        Calculates f2(t) = t^a * E_{m*a, a+1}(-(\omega*t)^{m*a})
         """
-        y = self._approx_f2(self.t, alpha)
-        beta = self.m * alpha
-        label = fr'$tE_{{{beta:.2f}, 2}}(-z)$: $\alpha={alpha:.2f}$'
+        alpha_ml = self.m * alpha
+        beta_offset = alpha + 1.0
+
+        series_sum = self._approx_series(self.t, alpha_ml, beta_offset)
+
+        y = (self.t ** alpha) * series_sum
+
+        # t=0 -> 0
+        y[self.t == 0] = 0.0
+
+        label = fr'$t^{{\alpha}}E_{{{alpha_ml:.2f}, \alpha+1}}(-z)$: $\alpha={alpha:.2f}$'  # ★ 修正
         return y, label
 
     def calculate_f3(self, alpha):
         """
-        Calculates f3 and prepares the label.
+        Calculates f3(t) = t^{2a} * E_{m*a, 2a+1}(-(\omega*t)^{m*a})
         """
-        y = self._approx_f3(self.t, alpha)
-        beta = self.m * alpha
-        label = fr'$t^2E_{{{beta:.2f}, 3}}(-z)$: $\alpha={alpha:.2f}$'
+        alpha_ml = self.m * alpha
+        beta_offset = (2.0 * alpha) + 1.0
+
+        series_sum = self._approx_series(self.t, alpha_ml, beta_offset)
+
+        y = (self.t ** (2.0 * alpha)) * series_sum
+
+        # t=0 -> 0
+        y[self.t == 0] = 0.0
+
+        label = fr'$t^{{2\alpha}}E_{{{alpha_ml:.2f}, 2\alpha+1}}(-z)$: $\alpha={alpha:.2f}$'  # ★ 修正
         return y, label
 
     def plot_function(self, function_name, alphas, filename):
@@ -142,12 +94,12 @@ class MittagLefflerPlotter:
 
         elif function_name == 'f2':
             calculator = self.calculate_f2
-            title = r'$f_2(t) = tE_{3\alpha, 2}(-(\omega t)^{3\alpha})$ with $\omega=1$'
+            title = r'$f_2(t) = t^\alpha E_{3\alpha, \alpha+1}(-(\omega t)^{3\alpha})$ with $\omega=1$'  # ★ 修正
             y_limit = (-7.6, 7.6)
 
         elif function_name == 'f3':
             calculator = self.calculate_f3
-            title = r'$f_3(t) = t^2E_{3\alpha, 3}(-(\omega t)^{3\alpha})$ with $\omega=1$'
+            title = r'$f_3(t) = t^{2\alpha} E_{3\alpha, 2\alpha+1}(-(\omega t)^{3\alpha})$ with $\omega=1$'  # ★ 修正
             y_limit = (-7.6, 7.6)
 
         else:
@@ -177,29 +129,33 @@ class MittagLefflerPlotter:
 
 # --- execution part ---
 if __name__ == '__main__':
+    # m=3.0
     plotter = MittagLefflerPlotter(m=3.0, t_end=20.0, omega=1.00, K=100)
+
     alphas_to_plot = [0.30, 0.60, 0.70, 1.0]
 
-    # 1. Plot f1 = E_{3*alpha, 1}
+    # 1. Plot f1 = E_{3a, 1}
     print("\n--- Plot of Function f1 ---")
     plotter.plot_function(
         function_name='f1',
         alphas=alphas_to_plot,
-        filename='MittagLeffler_f1_E3a_1_v2.png'
+        filename='Sequential_f1_E3a_1_v2.png'
     )
 
-    # 2. Plot f2 = t * E_{3*alpha, 2}
+    # 2. Plot f2 = t^a * E_{3a, a+1}
     print("\n--- Plot of Function f2 ---")
     plotter.plot_function(
         function_name='f2',
         alphas=alphas_to_plot,
-        filename='MittagLeffler_f2_tE3a_2_v2.png'
+        filename='Sequential_f2_tE3a_a+1_v2.png'
     )
 
-    # 3. Plot f3 = t^2 * E_{3*alpha, 3}
+    # 3. Plot f3 = t^{2a} * E_{3a, 2a+1}
     print("\n--- Plot of Function f3 ---")
     plotter.plot_function(
         function_name='f3',
         alphas=alphas_to_plot,
-        filename='MittagLeffler_f3_t2E3a_3_v2.png'
+        filename='Sequential_f3_t2E3a_2a+1_v2.png'
     )
+
+print("\nSequential plots (v2) generated successfully.")
